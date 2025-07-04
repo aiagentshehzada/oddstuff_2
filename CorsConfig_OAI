@@ -1,0 +1,49 @@
+package com.ms.ied.alerts.centre.consistenthash.config
+
+import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.web.cors.{CorsConfiguration, CorsConfigurationSource, UrlBasedCorsConfigurationSource}
+import org.springframework.web.filter.CorsFilter
+import java.util
+
+@Configuration
+class SecurityConfig {
+
+  // Enable Spring Security to use CORS
+  @Bean
+  @throws[Exception]
+  def securityFilterChain(http: HttpSecurity): SecurityFilterChain = {
+    http
+      .cors()
+      .and()
+      .authorizeRequests()
+      .anyRequest().permitAll()
+      .and()
+      .csrf().disable() // disable CSRF for APIs
+      .logout().permitAll()
+    http.build()
+  }
+
+  // Dynamic CORS configuration source
+  @Bean
+  def corsConfigurationSource(): CorsConfigurationSource = {
+    val source = new UrlBasedCorsConfigurationSource()
+
+    val config = new CorsConfiguration()
+    config.setAllowedOrigins(util.Arrays.asList()) // Leave empty, override via pattern below
+    config.setAllowedOriginPatterns(util.Arrays.asList("http://*.ms.com"))
+    config.setAllowedMethods(util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"))
+    config.setAllowedHeaders(util.Arrays.asList("*"))
+    config.setAllowCredentials(true)
+
+    source.registerCorsConfiguration("/**", config)
+    source
+  }
+
+  // CorsFilter if needed for filters pipeline (optional with above source bean)
+  @Bean
+  def corsFilter(): CorsFilter = {
+    new CorsFilter(corsConfigurationSource())
+  }
+}
