@@ -1,0 +1,83 @@
+import base64
+import sys
+
+def encode_string(s):
+    """
+    Encodes a string into a base64 string.
+
+    Args:
+        s (str): The input string to encode.
+
+    Returns:
+        str: The base64-encoded string.
+    """
+    try:
+        # Encode the input string to bytes
+        encoded_bytes = base64.b64encode(s.encode('utf-8'))
+        # Convert bytes to string
+        encoded_str = encoded_bytes.decode('utf-8')
+        return encoded_str
+    except Exception as e:
+        raise ValueError(f"Encoding failed: {e}")
+
+def decode_string(encoded_str):
+    """
+    Decodes a base64 string into the original string.
+
+    Args:
+        encoded_str (str): The base64-encoded string.
+
+    Returns:
+        str: The decoded original string.
+
+    Raises:
+        ValueError: If decoding fails.
+    """
+    try:
+        # Decode the base64 string to bytes
+        decoded_bytes = base64.b64decode(encoded_str)
+        # Convert bytes to string
+        decoded_str = decoded_bytes.decode('utf-8')
+        return decoded_str
+    except Exception as e:
+        raise ValueError(f"Decoding failed: {e}")
+
+def print_usage():
+    print("Usage:")
+    print("  python base64_tool.py encode <input_file> <output_file>")
+    print("  python base64_tool.py decode <input_file> <output_file>")
+
+def main():
+    if len(sys.argv) != 4:
+        print_usage()
+        sys.exit(1)
+    
+    command, input_file, output_file = sys.argv[1], sys.argv[2], sys.argv[3]
+    
+    if command == "encode":
+        try:
+            with open(input_file, "r", encoding="utf-8") as f:
+                original_code = f.read()
+            encoded_str = encode_string(original_code)
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(encoded_str)
+            print(f"🔒 Encoded string saved to '{output_file}'")
+        except Exception as e:
+            print(f"❌ Error encoding: {e}")
+    elif command == "decode":
+        try:
+            with open(input_file, "r", encoding="utf-8") as f:
+                encoded_str = f.read()
+            decoded_code = decode_string(encoded_str)
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(decoded_code)
+            print("✅ Decoded Code saved to '{output_file}'")
+        except Exception as e:
+            print(f"❌ Error decoding: {e}")
+    else:
+        print("Unknown command. Use 'encode' or 'decode'.")
+        print_usage()
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
