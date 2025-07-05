@@ -32,7 +32,7 @@ class SecurityConfig {
 
     val config = new CorsConfiguration()
     config.setAllowedOrigins(util.Arrays.asList()) // Leave empty, override via pattern below
-    config.setAllowedOriginPatterns(util.Arrays.asList("http://*.ms.com"))
+    config.setAllowedOriginPatterns(util.Arrays.asList("http://*.msasdssa.com"))
     config.setAllowedMethods(util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"))
     config.setAllowedHeaders(util.Arrays.asList("*"))
     config.setAllowCredentials(true)
