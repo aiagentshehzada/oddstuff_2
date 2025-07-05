@@ -1,0 +1,122 @@
+word map
+# Word map for encoding
+word_map = {
+    'A': ['Apple', 'Alice'],
+    'B': ['Banana', 'Bob'],
+    'C': ['Cat', 'Charlie'],
+    'D': ['Dog', 'David'],
+    'E': ['Elephant', 'Emma'],
+    'F': ['Flower', 'Frank'],
+    'G': ['Guitar', 'George'],
+    'H': ['House', 'Harry'],
+    'I': ['Ice', 'Ian'],
+    'J': ['Juice', 'Jack'],
+    'K': ['Kangaroo', 'Kevin'],
+    'L': ['Lake', 'Laura'],
+    'M': ['Monkey', 'Mike'],
+    'N': ['Night', 'Nancy'],
+    'O': ['Orange', 'Oliver'],
+    'P': ['Pen', 'Peter'],
+    'Q': ['Queen', 'Quinn'],
+    'R': ['River', 'Robert'],
+    'S': ['Sun', 'Sam'],
+    'T': ['Tree', 'Tom'],
+    'U': ['Universe', 'Ursula'],
+    'V': ['Violin', 'Victor'],
+    'W': ['Window', 'William'],
+    'X': ['Xylophone', 'Xavier'],
+    'Y': ['Yellow', 'Yellowstone'],
+    'Z': ['Zoo', 'Zack'],
+    '+': ['Zoom', 'Zipper'],
+    '/': ['Fly', 'Float'],
+    '=': ['End', 'Ending']
+}
+
+
+
+import base64
+import random
+
+def encode_string_to_story(s):
+    # Step 1: Base64 encode the input string
+    encoded = base64.b64encode(s.encode('utf-8')).decode('utf-8')
+    
+    # Step 2: Replace each char with a random word from its list
+    story_words = []
+    for char in encoded:
+        if char in word_map:
+            story_words.append(random.choice(word_map[char]))
+        else:
+            story_words.append(f"[Unknown:{char}]")
+
+    # Step 3: Wrap it into a realistic narrative
+    story = (
+        "Life moves fast. One day you're unpacking boxes, the next you're packing them again. "
+        "That’s where I am right now — preparing to move across the country for a new job opportunity. "
+        "Because of this, I’m putting two big things up for sale: my car and house. "
+        "Both feel like part of my story, but it's time to let go and start fresh somewhere new. "
+        "Here’s what I’ve decided to include in the sale: "
+        + ", ".join(story_words[:len(story_words)//2]) + ". "
+        "And here’s what the buyer should expect during inspection: "
+        + ", ".join(story_words[len(story_words)//2:]) + ". "
+        "If you're interested, drop me a message. Serious inquiries only."
+    )
+
+    return story
+
+
+# Reverse mapping for decoding
+reverse_word_map = {word: k for k, words in word_map.items() for word in words}
+
+def decode_story(story):
+    import re
+    words = [word.strip(".,") for word in re.findall(r'\w+', story)]
+    encoded_chars = []
+    for word in words:
+        if word in reverse_word_map:
+            encoded_chars.append(reverse_word_map[word])
+    encoded_str = ''.join(encoded_chars)
+    
+    try:
+        decoded_bytes = base64.b64decode(encoded_str)
+        return decoded_bytes.decode('utf-8')
+    except Exception as e:
+        raise ValueError(f"Failed to decode base64 string from story: {e}")
+
+
+example
+
+if __name__ == "__main__":
+    # Load your Python file
+    with open("your_script.py", "r", encoding="utf-8") as f:
+        original_code = f.read()
+    
+    # Encode it
+    encoded_story = encode_string_to_story(original_code)
+
+    print("🔒 Encoded Story:\n")
+    print(encoded_story)
+
+
+if __name__ == "__main__":
+    # Paste the story here
+    received_story = """
+    Life moves fast. One day you're unpacking boxes, the next you're packing them again.
+    That’s where I am right now — preparing to move across the country for a new job opportunity.
+    Because of this, I’m putting two big things up for sale: my car and house.
+    Both feel like part of my story, but it's time to let go and start fresh somewhere new.
+    Here’s what I’ve decided to include in the sale:
+    Apple Banana Cat Dog Elephant Flower Guitar House Ice Juice Kangaroo Lake Monkey Night Orange Pen Queen River Sun Tree Universe Violin Window Xylophone Yellow Zoo Fly Float End.
+    And here’s what the buyer should expect during inspection:
+    Zoom Zipper Fly Float End Ending ...
+    If you're interested, drop me a message. Serious inquiries only.
+    """
+
+    try:
+        decoded_code = decode_story(received_story)
+        print("✅ Decoded Code:\n")
+        print(decoded_code)
+    except Exception as e:
+        print("❌ Error decoding:", e)
+
+
