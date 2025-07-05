@@ -1,0 +1,154 @@
+import base64
+import sys
+import zlib
+
+def encode_string_compact(s):
+    """
+    Encodes a string into a compact, URL-safe base64 string without padding.
+
+    Args:
+        s (str): The input string to encode.
+
+    Returns:
+        str: The compact base64-encoded string.
+    """
+    try:
+        # Encode using URL-safe base64
+        encoded_bytes = base64.urlsafe_b64encode(s.encode('utf-8'))
+        # Convert bytes to string and remove padding
+        encoded_str = encoded_bytes.decode('utf-8').rstrip('=')
+        return encoded_str
+    except Exception as e:
+        raise ValueError(f"Encoding failed: {e}")
+
+def decode_string_compact(encoded_str):
+    """
+    Decodes a compact, URL-safe base64 string with added padding.
+
+    Args:
+        encoded_str (str): The unpadded, URL-safe base64-encoded string.
+
+    Returns:
+        str: The decoded original string.
+    """
+    try:
+        # Calculate the number of padding characters needed
+        padding_length = 4 - (len(encoded_str) % 4)
+        if padding_length == 4:
+            padding_length = 0
+        # Add padding
+        padded_str = encoded_str + '=' * padding_length
+        # Decode using URL-safe base64
+        decoded_bytes = base64.urlsafe_b64decode(padded_str)
+        return decoded_bytes.decode('utf-8')
+    except Exception as e:
+        raise ValueError(f"Decoding failed: {e}")
+
+def encode_string_compressed(s):
+    """
+    Compresses and encodes a string into a compact base64 string.
+
+    Args:
+        s (str): The input string to encode.
+
+    Returns:
+        str: The compressed and encoded string.
+    """
+    try:
+        # Compress the string
+        compressed_bytes = zlib.compress(s.encode('utf-8'))
+        # Encode using URL-safe base64
+        encoded_bytes = base64.urlsafe_b64encode(compressed_bytes)
+        # Convert bytes to string and remove padding
+        encoded_str = encoded_bytes.decode('utf-8').rstrip('=')
+        return encoded_str
+    except Exception as e:
+        raise ValueError(f"Encoding failed: {e}")
+
+def decode_string_compressed(encoded_str):
+    """
+    Decodes and decompresses a compact base64 string.
+
+    Args:
+        encoded_str (str): The compressed and encoded string.
+
+    Returns:
+        str: The decoded and decompressed original string.
+    """
+    try:
+        # Add padding
+        padding_length = 4 - (len(encoded_str) % 4)
+        if padding_length == 4:
+            padding_length = 0
+        padded_str = encoded_str + '=' * padding_length
+        # Decode using URL-safe base64
+        decoded_bytes = base64.urlsafe_b64decode(padded_str)
+        # Decompress
+        decompressed_str = zlib.decompress(decoded_bytes).decode('utf-8')
+        return decompressed_str
+    except Exception as e:
+        raise ValueError(f"Decoding failed: {e}")
+
+# Command-line interface
+def main():
+    if len(sys.argv) != 4:
+        print("Usage:")
+        print("  python base64_tool.py encode <input_file> <output_file>")
+        print("  python base64_tool.py decode <input_file> <output_file>")
+        print("  python base64_tool.py compress_encode <input_file> <output_file>")
+        print("  python base64_tool.py compress_decode <input_file> <output_file>")
+        sys.exit(1)
+    
+    command, input_file, output_file = sys.argv[1], sys.argv[2], sys.argv[3]
+    
+    if command == "encode":
+        try:
+            with open(input_file, "r", encoding="utf-8") as f:
+                original_code = f.read()
+            encoded_str = encode_string_compact(original_code)
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(encoded_str)
+            print(f"🔒 Compact encoded string saved to '{output_file}'")
+        except Exception as e:
+            print(f"❌ Error encoding: {e}")
+    elif command == "decode":
+        try:
+            with open(input_file, "r", encoding="utf-8") as f:
+                encoded_str = f.read()
+            decoded_code = decode_string_compact(encoded_str)
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(decoded_code)
+            print("✅ Decoded Code saved to '{output_file}'")
+        except Exception as e:
+            print(f"❌ Error decoding: {e}")
+    elif command == "compress_encode":
+        try:
+            with open(input_file, "r", encoding="utf-8") as f:
+                original_code = f.read()
+            encoded_str = encode_string_compressed(original_code)
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(encoded_str)
+            print(f"🔒 Compressed and encoded string saved to '{output_file}'")
+        except Exception as e:
+            print(f"❌ Error encoding: {e}")
+    elif command == "compress_decode":
+        try:
+            with open(input_file, "r", encoding="utf-8") as f:
+                encoded_str = f.read()
+            decoded_code = decode_string_compressed(encoded_str)
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(decoded_code)
+            print("✅ Decoded and decompressed Code saved to '{output_file}'")
+        except Exception as e:
+            print(f"❌ Error decoding: {e}")
+    else:
+        print("Unknown command. Use 'encode', 'decode', 'compress_encode', or 'compress_decode'.")
+        print("Usage:")
+        print("  python base64_tool.py encode <input_file> <output_file>")
+        print("  python base64_tool.py decode <input_file> <output_file>")
+        print("  python base64_tool.py compress_encode <input_file> <output_file>")
+        print("  python base64_tool.py compress_decode <input_file> <output_file>")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
